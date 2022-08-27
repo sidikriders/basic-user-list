@@ -23,9 +23,11 @@ import { fetchAPI } from "./utils/api";
 function App() {
   const [query, setQuery] = useQueryParams({
     page: withDefault(NumberParam, 1),
-    q: withDefault(StringParam, ""),
-    page_size: withDefault(NumberParam, 25),
-    gender: withDefault(StringParam, "all"),
+    q: StringParam,
+    page_size: withDefault(NumberParam, 10),
+    gender: StringParam,
+    sortOrder: StringParam,
+    sortBy: StringParam,
   });
   const [users, setUsers] = useState({
     loading: false,
@@ -33,14 +35,17 @@ function App() {
   });
   const [searchQ, setSearchQ] = useState("");
 
-  const getUserList = async (page: number, q: string, perPage: number) => {
+  const getUserList = async () => {
     setUsers((u) => ({ ...u, loading: true }));
     try {
       const resp = await fetchAPI("https://randomuser.me/api/", {
         payload: {
-          seed: "user-user-ajaib",
-          results: perPage,
-          page,
+          seed: "basic-user-list",
+          results: query.page_size,
+          pageSize: query.page_size,
+          page: query.page,
+          keyword: query.q,
+          gender: query.gender,
         },
       });
 
@@ -55,8 +60,8 @@ function App() {
   };
 
   useEffect(() => {
-    getUserList(query.page, query.q, query.page_size);
-    setSearchQ(query.q);
+    getUserList();
+    setSearchQ(String(query.q || ""));
   }, Object.values(query));
 
   return (
@@ -87,14 +92,14 @@ function App() {
         <Col span={8}>
           <label>Gender</label>
           <Select
-            value={query.gender}
+            value={query.gender || "all"}
             placeholder="Select Gender"
             onChange={(val) => setQuery({ gender: val || undefined })}
             allowClear
           >
             <Select.Option value="all">All</Select.Option>
-            <Select.Option value="f">Female</Select.Option>
-            <Select.Option value="m">Male</Select.Option>
+            <Select.Option value="female">Female</Select.Option>
+            <Select.Option value="male">Male</Select.Option>
           </Select>
         </Col>
         <Col span={8}>
@@ -120,12 +125,6 @@ function App() {
           current: query.page,
           pageSize: query.page_size,
           total: 5000,
-          onChange: (page, pageSize) => {
-            setQuery({
-              page: pageSize !== query.page_size ? 1 : page,
-              page_size: pageSize,
-            });
-          },
           style: {
             marginBottom: 0,
           },
@@ -144,8 +143,9 @@ function App() {
           },
           {
             title: "Username",
-            key: "uname",
+            key: "username",
             dataIndex: ["login", "username"],
+            sorter: true,
           },
           {
             title: "Name",
@@ -154,6 +154,7 @@ function App() {
             render: (value) => {
               return `${value?.first}  ${value?.last}`;
             },
+            sorter: true,
           },
           {
             title: "Gender",
@@ -163,6 +164,7 @@ function App() {
               return value.charAt(0).toUpperCase() + value.slice(1);
             },
             width: 100,
+            sorter: true,
           },
           {
             title: "Registered Date",
@@ -175,10 +177,29 @@ function App() {
 
               return moment(value).format("DD-MM-YYYY HH:mm");
             },
+            sorter: true,
           },
         ]}
         scroll={{
           y: "calc(100vh - 284.43px)",
+        }}
+        onChange={(pagination, filters, sorter, { action }) => {
+          if (action === "sort") {
+            setQuery({
+              sortOrder: sorter.order,
+              sortBy: !!sorter.order ? sorter.columnKey : undefined,
+            });
+          }
+
+          if (action === "paginate") {
+            setQuery({
+              page:
+                pagination.pageSize !== query.page_size
+                  ? 1
+                  : pagination.current,
+              page_size: pagination.pageSize,
+            });
+          }
         }}
       />
     </Wrapper>
