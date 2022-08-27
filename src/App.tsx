@@ -208,6 +208,8 @@ function App() {
 
 const Wrapper = styled.div`
   padding: 15px;
+  max-width: 1000px;
+  margin: auto;
 
   .filter-container {
     max-width: 1000px;
