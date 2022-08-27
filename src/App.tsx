@@ -3,19 +3,26 @@ import "antd/dist/antd.css";
 import moment from "moment";
 import { useEffect, useState } from "react";
 import styled from "styled-components";
+import {
+  NumberParam,
+  StringParam,
+  useQueryParams,
+  withDefault,
+} from "use-query-params";
 import { fetchAPI } from "./utils/api";
-import { getQueryObj } from "./utils/query";
 
 function App() {
+  const [query, setQuery] = useQueryParams({
+    page: withDefault(NumberParam, 1),
+    q: withDefault(StringParam, ""),
+    page_size: withDefault(NumberParam, 25),
+  });
   const [users, setUsers] = useState({
     loading: false,
     list: [],
-    pageSize: 10,
-    page: 1,
-    q: "",
   });
 
-  const getUserList = async (page = 1, q = "", perPage = 25) => {
+  const getUserList = async (page: number, q: string, perPage: number) => {
     setUsers((u) => ({ ...u, loading: true }));
     try {
       const resp = await fetchAPI("https://randomuser.me/api/", {
@@ -28,10 +35,7 @@ function App() {
 
       setUsers({
         list: resp.results,
-        pageSize: resp.info?.results,
         loading: false,
-        page,
-        q,
       });
     } catch (error) {
       message.error(String(error));
@@ -40,9 +44,9 @@ function App() {
   };
 
   useEffect(() => {
-    const query = getQueryObj();
-    getUserList(query.page, query.q);
-  }, []);
+    console.log(query);
+    getUserList(query.page, query.q, query.page_size);
+  }, [query.page, query.q, query.page_size]);
 
   return (
     <Wrapper>
@@ -69,15 +73,14 @@ function App() {
       <Table
         pagination={{
           position: ["bottomRight"],
-          current: users.page,
-          pageSize: users.pageSize,
+          current: query.page,
+          pageSize: query.page_size,
           total: 5000,
           onChange: (page, pageSize) => {
-            getUserList(
-              pageSize !== users.pageSize ? 1 : page,
-              users.q,
-              pageSize
-            );
+            setQuery({
+              page: pageSize !== query.page_size ? 1 : page,
+              page_size: pageSize,
+            });
           },
         }}
         rowKey="key"
@@ -87,7 +90,7 @@ function App() {
           {
             title: "No.",
             render: (value, record, index) => {
-              return (users.page - 1) * users.pageSize + index + 1 + ".";
+              return (query.page - 1) * query.page_size + index + 1 + ".";
             },
             key: "no",
             width: 75,
