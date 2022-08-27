@@ -69,7 +69,7 @@ function App() {
       </Breadcrumb>
       <h1>Example With Search and Filter</h1>
 
-      <Row gutter={[15, 15]}>
+      <Row gutter={[15, 15]} className="filter-container">
         <Col span={8}>
           <label>Search</label>
           <Input.Search
@@ -181,6 +181,23 @@ function App() {
 
 const Wrapper = styled.div`
   padding: 15px;
+
+  .filter-container {
+    max-width: 1000px;
+    margin: 15px 0;
+
+    label {
+      display: block;
+    }
+
+    .ant-select {
+      width: 100%;
+    }
+
+    .ant-col > .ant-btn {
+      margin-top: 21.99px;
+    }
+  }
 `;
 
 export default App;
