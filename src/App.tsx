@@ -183,11 +183,11 @@ function App() {
         scroll={{
           y: "calc(100vh - 284.43px)",
         }}
-        onChange={(pagination, filters, sorter, { action }) => {
+        onChange={(pagination, filters, sorter: any, { action }) => {
           if (action === "sort") {
             setQuery({
               sortOrder: sorter.order,
-              sortBy: !!sorter.order ? sorter.columnKey : undefined,
+              sortBy: !!sorter.order ? String(sorter.columnKey) : undefined,
             });
           }
 
