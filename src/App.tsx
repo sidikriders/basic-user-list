@@ -126,6 +126,9 @@ function App() {
               page_size: pageSize,
             });
           },
+          style: {
+            marginBottom: 0,
+          },
         }}
         rowKey="key"
         dataSource={users.list}
@@ -174,6 +177,9 @@ function App() {
             },
           },
         ]}
+        scroll={{
+          y: "calc(100vh - 284.43px)",
+        }}
       />
     </Wrapper>
   );
