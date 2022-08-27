@@ -1,4 +1,13 @@
-import { Breadcrumb, Button, Col, Input, message, Row, Table } from "antd";
+import {
+  Breadcrumb,
+  Button,
+  Col,
+  Input,
+  message,
+  Row,
+  Select,
+  Table,
+} from "antd";
 import "antd/dist/antd.css";
 import moment from "moment";
 import { useEffect, useState } from "react";
@@ -16,11 +25,13 @@ function App() {
     page: withDefault(NumberParam, 1),
     q: withDefault(StringParam, ""),
     page_size: withDefault(NumberParam, 25),
+    gender: withDefault(StringParam, "all"),
   });
   const [users, setUsers] = useState({
     loading: false,
     list: [],
   });
+  const [searchQ, setSearchQ] = useState("");
 
   const getUserList = async (page: number, q: string, perPage: number) => {
     setUsers((u) => ({ ...u, loading: true }));
@@ -44,9 +55,9 @@ function App() {
   };
 
   useEffect(() => {
-    console.log(query);
     getUserList(query.page, query.q, query.page_size);
-  }, [query.page, query.q, query.page_size]);
+    setSearchQ(query.q);
+  }, Object.values(query));
 
   return (
     <Wrapper>
@@ -61,12 +72,45 @@ function App() {
       <Row gutter={[15, 15]}>
         <Col span={8}>
           <label>Search</label>
-          {/* <Input.Search
+          <Input.Search
             placeholder="Search User..."
-            defaultValue={query.q || ""}
-            onSearch={val => }
+            value={searchQ}
+            onSearch={(val) => setQuery({ q: val || undefined, page: 1 })}
+            onChange={(e) => {
+              e.persist();
+              setSearchQ(e.target?.value);
+            }}
             enterButton
-          /> */}
+            allowClear
+          />
+        </Col>
+        <Col span={8}>
+          <label>Gender</label>
+          <Select
+            value={query.gender}
+            placeholder="Select Gender"
+            onChange={(val) => setQuery({ gender: val || undefined })}
+            allowClear
+          >
+            <Select.Option value="all">All</Select.Option>
+            <Select.Option value="f">Female</Select.Option>
+            <Select.Option value="m">Male</Select.Option>
+          </Select>
+        </Col>
+        <Col span={8}>
+          <Button
+            onClick={() => {
+              setQuery({
+                page: undefined,
+                page_size: undefined,
+                q: undefined,
+                gender: undefined,
+              });
+              setSearchQ("");
+            }}
+          >
+            Reset
+          </Button>
         </Col>
       </Row>
 
