@@ -7,7 +7,6 @@ import { fetchAPI } from "./utils/api";
 import { getQueryObj } from "./utils/query";
 
 function App() {
-  const query = getQueryObj();
   const [users, setUsers] = useState({
     loading: false,
     list: [],
@@ -16,13 +15,13 @@ function App() {
     q: "",
   });
 
-  const getUserList = async (page = 1, q = "") => {
+  const getUserList = async (page = 1, q = "", perPage = 25) => {
     setUsers((u) => ({ ...u, loading: true }));
     try {
       const resp = await fetchAPI("https://randomuser.me/api/", {
         payload: {
           seed: "user-user-ajaib",
-          results: 50,
+          results: perPage,
           page,
         },
       });
@@ -41,6 +40,7 @@ function App() {
   };
 
   useEffect(() => {
+    const query = getQueryObj();
     getUserList(query.page, query.q);
   }, []);
 
@@ -72,7 +72,13 @@ function App() {
           current: users.page,
           pageSize: users.pageSize,
           total: 5000,
-          onChange: (page) => getUserList(page, users.q),
+          onChange: (page, pageSize) => {
+            getUserList(
+              pageSize !== users.pageSize ? 1 : page,
+              users.q,
+              pageSize
+            );
+          },
         }}
         rowKey="key"
         dataSource={users.list}
