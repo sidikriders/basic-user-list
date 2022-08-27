@@ -5,9 +5,13 @@ export const fetchAPI = async (url: string, options?: {
   let finalUrl = url
   const method = options?.method || 'GET'
   if (method === 'GET' && options?.payload) {
-    finalUrl = url + Object.keys(options.payload).reduce((str, key, idx) => {
+    finalUrl = Object.keys(options.payload).reduce((str, key, idx) => {
+      if (!options.payload[key]) {
+        return str
+      }
+
       return str + (!!idx ? '&' : '') + key + '=' + (options.payload[key] || '')
-    }, '?')
+    }, `${url}?`)
   }
 
   const resp = await fetch(finalUrl)
