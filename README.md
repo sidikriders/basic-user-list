@@ -6,8 +6,6 @@ Built using React, TypeScript, Vite, and Ant Design.
 
 ### How to run
 
-1. Install the package
-   `npm install`
-2. Run the app
-   `npm run dev`
+1. Install the package `npm install`
+2. Run the app `npm run dev`
 3. Now you can see the app from browser `localhost:5173`
